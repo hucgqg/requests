@@ -9,21 +9,23 @@ import (
 	"net/http"
 )
 
-func checkError(err error) {
+func checkError(err error) error {
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+	return nil
 }
 
 type Request struct {
-	Url     *string
-	Method  string
-	Data    *map[string]string
-	Headers *map[string]string
-	RepInfo map[string]interface{}
+	Url       *string
+	Method    string
+	Data      *map[string]interface{}
+	Headers   *map[string]string
+	BasicAuth *map[string]string
+	RepInfo   map[string]interface{}
 }
 
-func (r *Request) Body() {
+func (r *Request) Body() error {
 	data, err := json.Marshal(r.Data)
 	checkError(err)
 	client := &http.Client{}
@@ -33,17 +35,24 @@ func (r *Request) Body() {
 	for k, v := range *r.Headers {
 		req.Header.Add(k, v)
 	}
+	for k, v := range *r.BasicAuth {
+		req.SetBasicAuth(k, v)
+	}
 	rep, err := client.Do(req)
 	checkError(err)
-	defer func(Body io.ReadCloser) {
+	defer func(Body io.ReadCloser) error {
 		err := Body.Close()
-		checkError(err)
+		if err := checkError(err); err != nil {
+			return err
+		}
+		return nil
 	}(rep.Body)
 	body, err := ioutil.ReadAll(rep.Body)
 	checkError(err)
 	if err = json.Unmarshal(body, &r.RepInfo); err != nil {
 		fmt.Println(err)
 	}
+	return nil
 }
 
 func (r *Request) Query() {
@@ -56,7 +65,8 @@ func (r *Request) Query() {
 	}
 	query := req.URL.Query()
 	for k, v := range *r.Data {
-		query.Add(k, v)
+		b, _ := json.Marshal(v)
+		query.Add(k, string(b))
 	}
 	req.URL.RawQuery = query.Encode()
 	rep, err := client.Do(req)
