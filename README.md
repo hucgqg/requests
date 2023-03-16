@@ -7,7 +7,7 @@
 #### 安装教程
 
 ```bash
-go get gitee.com/hcqcode/requests
+go get github.com/hucgqg/requests
 ```
 
 #### 使用说明
@@ -16,7 +16,7 @@ go get gitee.com/hcqcode/requests
 package main
 
 import (
-	"gitee.com/hcqcode/requests"
+	"github.com/hucgqg/requests"
 )
 
 func main() {
