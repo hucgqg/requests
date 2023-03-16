@@ -21,7 +21,7 @@ import (
 
 func main() {
     url := "https://test.com/api"
-    r := requests.Request{Url: &url, Method: "POST", Data: &map[string]string{}, Headers: &map[string]string{},BasicAuth: &map[string]string{}}
+    r := requests.Request{Url: &url, Method: "POST", Data: &map[string]interface{}{}, Headers: &map[string]string{},BasicAuth: &map[string]string{}}
     r.Body()
     fmt.Println(r.RepInfo)
 }
