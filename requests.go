@@ -33,17 +33,17 @@ func (r *Request) Body() error {
 	req, err := http.NewRequest(r.Method, *r.Url, bytes.NewBuffer(data))
 	checkError(err)
 	req.Header.Add("Content-Type", "application/json;charset=UTF-8")
-	if len(*r.HeadersAdd) != 0 {
+	if len(*r.HeadersAdd) != 0 && *r.HeadersAdd != nil {
 		for k, v := range *r.HeadersAdd {
 			req.Header.Add(k, v)
 		}
 	}
-	if len(*r.HeadersSet) != 0 {
+	if len(*r.HeadersSet) != 0 && *r.HeadersSet != nil {
 		for k, v := range *r.HeadersAdd {
 			req.Header.Set(k, v)
 		}
 	}
-	if len(*r.BasicAuth) != 0 {
+	if len(*r.BasicAuth) != 0 && *r.BasicAuth != nil {
 		for k, v := range *r.BasicAuth {
 			req.SetBasicAuth(k, v)
 		}
