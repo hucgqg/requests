@@ -17,12 +17,13 @@ func checkError(err error) error {
 }
 
 type Request struct {
-	Url       *string
-	Method    string
-	Data      *map[string]interface{}
-	Headers   *map[string]string
-	BasicAuth *map[string]string
-	RepInfo   map[string]interface{}
+	Url        *string
+	Method     string
+	Data       *map[string]interface{}
+	HeadersAdd *map[string]string
+	HeadersSet *map[string]string
+	BasicAuth  *map[string]string
+	RepInfo    map[string]interface{}
 }
 
 func (r *Request) Body() error {
@@ -32,11 +33,20 @@ func (r *Request) Body() error {
 	req, err := http.NewRequest(r.Method, *r.Url, bytes.NewBuffer(data))
 	checkError(err)
 	req.Header.Add("Content-Type", "application/json;charset=UTF-8")
-	for k, v := range *r.Headers {
-		req.Header.Add(k, v)
+	if len(*r.HeadersAdd) != 0 {
+		for k, v := range *r.HeadersAdd {
+			req.Header.Add(k, v)
+		}
 	}
-	for k, v := range *r.BasicAuth {
-		req.SetBasicAuth(k, v)
+	if len(*r.HeadersSet) != 0 {
+		for k, v := range *r.HeadersAdd {
+			req.Header.Set(k, v)
+		}
+	}
+	if len(*r.BasicAuth) != 0 {
+		for k, v := range *r.BasicAuth {
+			req.SetBasicAuth(k, v)
+		}
 	}
 	rep, err := client.Do(req)
 	checkError(err)
@@ -60,7 +70,7 @@ func (r *Request) Query() {
 	req, err := http.NewRequest(r.Method, *r.Url, nil)
 	checkError(err)
 	req.Header.Add("Content-Type", "application/json;charset=UTF-8")
-	for k, v := range *r.Headers {
+	for k, v := range *r.HeadersAdd {
 		req.Header.Add(k, v)
 	}
 	query := req.URL.Query()
