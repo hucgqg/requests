@@ -1,4 +1,4 @@
-package requests
+package api
 
 import (
 	"bytes"
@@ -17,12 +17,12 @@ func checkError(err error) error {
 }
 
 type Request struct {
-	Url        *string
+	Url        string
 	Method     string
-	Data       *map[string]interface{}
-	HeadersAdd *map[string]string
-	HeadersSet *map[string]string
-	BasicAuth  *map[string]string
+	Data       map[string]interface{}
+	HeadersAdd map[string]string
+	HeadersSet map[string]string
+	BasicAuth  map[string]string
 	RepInfo    map[string]interface{}
 }
 
@@ -30,21 +30,21 @@ func (r *Request) Body() error {
 	data, err := json.Marshal(r.Data)
 	checkError(err)
 	client := &http.Client{}
-	req, err := http.NewRequest(r.Method, *r.Url, bytes.NewBuffer(data))
+	req, err := http.NewRequest(r.Method, r.Url, bytes.NewBuffer(data))
 	checkError(err)
 	req.Header.Add("Content-Type", "application/json;charset=UTF-8")
-	if len(*r.HeadersAdd) != 0 && *r.HeadersAdd != nil {
-		for k, v := range *r.HeadersAdd {
+	if r.HeadersAdd != nil {
+		for k, v := range r.HeadersAdd {
 			req.Header.Add(k, v)
 		}
 	}
-	if len(*r.HeadersSet) != 0 && *r.HeadersSet != nil {
-		for k, v := range *r.HeadersAdd {
+	if r.HeadersSet != nil {
+		for k, v := range r.HeadersSet {
 			req.Header.Set(k, v)
 		}
 	}
-	if len(*r.BasicAuth) != 0 && *r.BasicAuth != nil {
-		for k, v := range *r.BasicAuth {
+	if r.BasicAuth != nil {
+		for k, v := range r.BasicAuth {
 			req.SetBasicAuth(k, v)
 		}
 	}
@@ -67,14 +67,14 @@ func (r *Request) Body() error {
 
 func (r *Request) Query() {
 	client := &http.Client{}
-	req, err := http.NewRequest(r.Method, *r.Url, nil)
+	req, err := http.NewRequest(r.Method, r.Url, nil)
 	checkError(err)
 	req.Header.Add("Content-Type", "application/json;charset=UTF-8")
-	for k, v := range *r.HeadersAdd {
+	for k, v := range r.HeadersAdd {
 		req.Header.Add(k, v)
 	}
 	query := req.URL.Query()
-	for k, v := range *r.Data {
+	for k, v := range r.Data {
 		b, _ := json.Marshal(v)
 		query.Add(k, string(b))
 	}
